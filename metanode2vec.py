@@ -259,7 +259,7 @@ def learn_embeddings(walks, path_1):
         model.save(path_1)
     return model
 
-def get_auc(G, graph_type, labels, binning_nodes, second_order_get = None):
+def get_auc(G, graph_type, labels, binning_nodes, name_model, second_order_get = None):
     pathModel = os.getcwd()  #
     if graph_type== "nodeTag2Vec":
         G_graph_tag = Graph_type(G, False, 1, 1, binning_nodes, second_order_get)
@@ -268,11 +268,9 @@ def get_auc(G, graph_type, labels, binning_nodes, second_order_get = None):
         path_model = os.path.join(pathModel, "methnodes_model_02_09_2018_update_2.txt")
 
     sequence_data_tag = None
-    G_graph_tag.preprocess_transition_probs(path_1, path_2)
-
     if not exists(path_model):
+        G_graph_tag.preprocess_transition_probs(path_1, path_2)
         sequence_data_tag = G_graph_tag.simulate_walks(10, 80)
-
     model = learn_embeddings(sequence_data_tag, path_model)
     obj_model = mode_evaludatoin(model, G,embedding_size)
     scores_get = obj_model.mutli_lables(labels, embedding_size)
