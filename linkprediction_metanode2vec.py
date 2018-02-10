@@ -155,7 +155,7 @@ class Graph_type():
             elif key_second_oder_2 in featur_vector_similarity:
                 node2vec_similarity = featur_vector_similarity[key_second_oder_2]
             else:
-                 node2vec_similarity = 0.0
+                node2vec_similarity = 0.0
 
             self.similarity_nodes = 1.0000 - (float(common_elements)/combine_elements + second_order_similarity + node2vec_similarity)/3.0
 
@@ -172,10 +172,11 @@ class Graph_type():
         normalized_probs =  [float(u_prob)/norm_const for u_prob in unnormalized_probs]
         return alias_setup(normalized_probs)
 
-    def preprocess_transition_probs(self):
+    def preprocess_transition_probs(self, path_1, path_2):
         '''
         Preprocessing of transition probabilities for guiding the random walks.
         '''
+        print "do the data preprocess_transition_probs"
 
         G = self.G
         is_directed = self.is_directed
@@ -208,10 +209,8 @@ class Graph_type():
                 if count%100==0:
                     print "the processing number is %f ----"
                     print float(int(count))/len(G.edges())
-
         self.alias_nodes = alias_nodes
         self.alias_edges = alias_edges
-
         return
 
 def alias_setup(probs):
@@ -269,7 +268,6 @@ def learn_embeddings(walks, path_1):
     flag = exists(path_1)
     if flag:
         model = KeyedVectors.load(path_1)
-        print "################"
         print "load the model directly"
     else:
         walks = [map(str, walk) for walk in walks]
@@ -277,21 +275,47 @@ def learn_embeddings(walks, path_1):
         model.save(path_1)
     return model
 
-def get_auc(G, graph_type, labels, featur_vector_similarity, binning_nodes, second_order_get = None):
+# def get_auc(G, graph_type, edges_select_connected, edges_select_not_connected, featur_vector_similarity, binning_nodes, second_order_get = None):
+#     pathModel = os.getcwd()  #
+#     if graph_type== "nodeTag2Vec":
+#         G_graph_tag = Graph_type(G, False, 1, 1, featur_vector_similarity, binning_nodes, second_order_get)
+#         path_1 = os.path.join(pathModel, "metanodes_node_pos_02_10_2018_update_blog.txt")
+#         path_2 = os.path.join(pathModel, "methnodes_node_pos_02_10_2018_update_blog.txt")
+#         path_model = os.path.join(pathModel, "methnodes_pos_02_10_2018_update_node2vec.txt")
+#     sequence_data_tag = None
+#     if not exists(path_model):
+#         G_graph_tag.preprocess_transition_probs(path_1, path_2)
+#         sequence_data_tag = G_graph_tag.simulate_walks(10, 80)
+#     model = learn_embeddings(sequence_data_tag, path_model)
+#     obj_model = mode_evaludatoin(model, G, embedding_size)
+#     scores_get = obj_model.mutli_lables(labels, embedding_size)
+#     return scores_get
+
+
+
+def get_auc(G, graph_type, edges_select_connected, edges_select_not_connected, featur_vector_similarity, binning_nodes, second_order_get = None):
     pathModel = os.getcwd()  #
+
     if graph_type== "nodeTag2Vec":
         G_graph_tag = Graph_type(G, False, 1, 1, featur_vector_similarity, binning_nodes, second_order_get)
-        path_model = os.path.join(pathModel, "methnodes_model_02_10_2018_blog_data.txt")
-    sequence_data_tag = None
-    if not exists(path_model):
-        G_graph_tag.preprocess_transition_probs()
-        sequence_data_tag = G_graph_tag.simulate_walks(10, 80)
+        path_model = os.path.join(pathModel, "model_50_tag_2_bin_arxiv_50.txt")
 
+    sequence_data_tag = None
+    path_1 = None
+    path_2 = None
+    if not exists(path_model):
+        G_graph_tag.preprocess_transition_probs(path_1, path_2)
+        sequence_data_tag = G_graph_tag.simulate_walks(10, 80)
     model = learn_embeddings(sequence_data_tag, path_model)
-    print "do the evaludation"
-    obj_model = mode_evaludatoin(model, G, embedding_size)
-    scores_get = obj_model.mutli_lables(labels, embedding_size)
-    return scores_get
+
+    print "do the model training"
+    obj_model = mode_evaludatoin(model, G)
+
+    auc_value, cross_vaidation_values = obj_model.auc_model(edges_select_connected, edges_select_not_connected)
+    # print auc_value
+    # print cross_vaidation_values
+    return auc_value, cross_vaidation_values
+
 
 def load_pickle(data_path):
     with open(data_path, 'rb') as handle:
@@ -311,51 +335,154 @@ def exists(path):
     return True
 
 if __name__ == '__main__':
-    print "load graph begin"
-    path_file = os.getcwd()
-    print path_file
-    # data_path = path_file + '/data/Homo_sapiens.mat'  #  methnodes_model_02_10_2018_update_node2vec.txt
-    # path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/node2vec_ppi_model__02_07_2018.txt"
+    data_path = "/Users/weizhili/Desktop/data_docker/data/graph_data"
+    members_path = data_path + '/Homo_sapiens.mat'
+    # POS.mat
+    # Homo_sapiens.mat
+    mat_contents = sio.loadmat(members_path)
+    network = mat_contents["network"].todense()
+    G=nx.from_numpy_matrix(network, create_using=nx.MultiDiGraph())
 
-    blog_data = True
-    if not blog_data:
-        #data_path = path_file + '/data/Homo_sapiens.mat'  #  methnodes_ppi_02_10_2018_update_node2vec.txt
-        #path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/node2vec_ppi_model__02_07_2018.txt"
+    for edge in G.edges():
+        G[edge[0]][edge[1]][0]['weight'] = 1
 
-        data_path = path_file + '/data/POS.mat' # methnodes_pos_02_10_2018_update_node2vec.txt
-        path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/node2vec_pos_model__02_07_2018.txt"  # methnodes_model_02_09_2018_pos_data.txt
-        mat_contents = sio.loadmat(data_path)
-        labels = mat_contents["group"].todense()
-        print labels
-        network = mat_contents["network"].todense()
 
-        G=nx.from_numpy_matrix(network, create_using=nx.MultiDiGraph())
-        for edge in G.edges():
-            G[edge[0]][edge[1]][0]['weight'] = 1
 
-    if blog_data:
-        data_path = path_file + "/data/BlogCatalog-dataset/data/"
 
-        os.chdir(data_path)
-        filenames = [x for x in os.listdir(data_path) if x.endswith('.csv') and os.path.getsize(x) > 0]
-        labels = pd.read_csv(data_path + filenames[1], names = ["nodes", "label"]) #df.replace({"col1": di})
-        G = nx.read_edgelist(data_path + filenames[0], delimiter=",", data=[("weight", int)])
-        path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/model__02_07_2018_blogs_2.txt"  # methnodes_model_02_10_2018_blog_data.txt
+    # data_path = "/Users/weizhili/Desktop/data_docker/data/graph_data"
+    # members_path = data_path + '/ca-AstroPh.txt'
+    # fack_book_flag = True
+    # #members_path = data_path + '/ca-AstroPh.txt' #arXiv datasets
+    # #  /facebook_combined.txt
+    # G = nx.read_edgelist(members_path, nodetype = int)
+    # # check if the data has been read properly or not.
+    # nx.info(G)
+    # # count the number of nodes
+    # G.number_of_nodes()
+    # # number of self-nodes
+    # G.selfloop_edges()
+    #
+    # # for edge in G.edges():
+    # #     G[edge[0]][edge[1]]['weight'] = 1
+    #
+    # # check if the data has been read properly or not.
+    # print nx.info(G)
+    # # count the number of nodes
+    # print G.number_of_nodes()
+    # # number of self-nodes
+    # print G.selfloop_edges()
+    #
+    #
+    # for edge in G.edges():
+    #     G[edge[0]][edge[1]]['weight'] = 1
 
-    print data_path
+
+
+
+
+    # data_path = "/Users/weizhili/Desktop/data_docker/data/graph_data"
+    # # members_path = data_path + '/facebook_combined.txt'  #model_50_tag_2_bin_ppi_50.txt
+    # members_path = data_path + '/ca-AstroPh.txt' #arXiv datasets  #model_50_tag_2_bin_arxiv_50.txt
+    # #  /facebook_combined.txt
+    # G = nx.read_edgelist(members_path, nodetype = int)
+    # # check if the data has been read properly or not.
+    # nx.info(G)
+    # # count the number of nodes
+    # G.number_of_nodes()
+    # # number of self-nodes
+    # G.selfloop_edges()
+    # print "the path"
+    # print members_path
+
+    # for edge in G.edges():
+    #     G[edge[0]][edge[1]]['weight'] = 1
+
+    # check if the data has been read properly or not.
+    print nx.info(G)
+    # count the number of nodes
+    print G.number_of_nodes()
+    # number of self-nodes
+    print G.selfloop_edges()
+
+
+    # for edge in G.edges():
+    #     G[edge[0]][edge[1]]['weight'] = 1
+
+
+    #print binning_nodes
+
+    # remove the edges
+    pathModel = os.getcwd()  #
+
+    edges_get_path = os.path.join(pathModel, "edges_50_ppi_3.json")
+    no_edges_get_path = os.path.join(pathModel, "nodes_50_ppi_3.json")
+    graph_get_path = os.path.join(pathModel, "graph_50_ppi_3.json")
+
+    path_2vec_model = "/Users/weizhili/Documents/JD_ads/graph_embedding/graph_embedding_link_prediction/Node2Vec/model_2_ppi_5.txt"
+    # for the facebook
+    # edges_get_path = os.path.join(pathModel, "edges_02_10_2018_facebook.json")
+    # no_edges_get_path = os.path.join(pathModel, "nodes_02_10_2018_facebook.json")
+    # graph_get_path = os.path.join(pathModel, "graph_02_10_2018_facebook.json")
+    #path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/link_prediction_node2vec/model_2_facebook_7_ca.txt"
+
+    graph_get_flag = exists(graph_get_path)
+
+    if not graph_get_flag:
+        lists_G = list(G.edges())
+        nodes = list(G.nodes())
+        percentage_nodes = 0.5
+        no_edges_G = []
+        number = int(len(G.edges())*percentage_nodes)
+        edges_select_connected = random.sample(lists_G,  number)
+
+        count = 0
+        while count<3*number:
+            i = np.random.choice(len(nodes), 1)[0]
+            j = np.random.choice(len(nodes), 1)[0]
+            if i != j:
+                if not G.has_edge(i, j):
+                    no_edges_G.append((i, j))
+            count +=1
+
+        edges_select_not_connected = no_edges_G[:number] #random.sample(no_edges_G,  number)
+        # remove it
+        for item in edges_select_connected:
+            G.remove_edge(item[0], item[1])
+
+        with open(edges_get_path, 'w') as f:
+            f.write(json.dumps(edges_select_connected))
+
+        with open(no_edges_get_path, 'w') as f:
+            f.write(json.dumps(edges_select_not_connected))
+        #
+        save_picle(graph_get_path, G)
+    else:
+
+        with open(edges_get_path, 'r') as f:
+            edges_select_connected = json.loads(f.read())
+
+        with open(no_edges_get_path, 'r') as f:
+            edges_select_not_connected = json.loads(f.read())
+
+        G = load_pickle(graph_get_path)
+
+    blog_data = False
+
 
     # read the multiplables
     binning_obj = binning(G, path_2vec_model)
     binning_nodes = binning_obj.binning_graph()
     bining_second_order_infor = binning_obj.second_order_get()
-
+    # blog_data = True # for the arxiv datasets
     if not blog_data:
         featur_vector_similarity = binning_obj.feature_combine()
     if blog_data:
-        print "similarithy"
         featur_vector_similarity = binning_obj.feature_combine_blog()
 
     # do the embedding
-    print "model evaludation"
-    auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, featur_vector_similarity, binning_nodes, bining_second_order_infor)
+    print bining_second_order_infor.keys()
+    # auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, featur_vector_similarity, binning_nodes, bining_second_order_infor)
+    auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", edges_select_connected, edges_select_not_connected,  featur_vector_similarity, binning_nodes, bining_second_order_infor)
     print path_2vec_model
+    print auc_value
+    print members_path

@@ -99,24 +99,19 @@ class mode_evaludatoin():
             X_0 = X_0_list[i]
 
             X = np.append(X_0, X_1, axis = 0)
-
             y_0 = np.zeros(X_0.shape[0])
-
             y_1 = np.ones(X_1.shape[0])
-
             y = np.append(y_0, y_1, axis = 0)
             y = np.reshape(y, (y.shape[0], 1))
-
             X_shuffle, y_shuffle = shuffle(X, y)
-
             X_train, X_test, y_train, y_test = train_test_split(X_shuffle, y_shuffle, test_size=.5, random_state=0)
             #print y_score.round()
             clf = LogisticRegression()
             clf.fit(X_train, y_train)
             y_score = clf.predict_proba(X_test)[:,1]
             #y_test = np.reshape(y_test, (y_test.shape[0]))
-            micro_f1 = f1_score(y_test, y_score.round(), average='micro')
 
+            micro_f1 = f1_score(y_test, y_score.round(), average='micro')
             macro_f2 = f1_score(y_test, y_score.round(), average='macro')
 
             fpr, tpr, thresholds = metrics.roc_curve(y_test, y_score)
@@ -125,8 +120,6 @@ class mode_evaludatoin():
             scores = cross_val_score(clf, X_shuffle, y_shuffle, cv=10)
             roc_comparasion.append(roc_auc_value)
             accuracy_comparasion.append(np.mean(scores))
-
-
         return roc_comparasion, accuracy_comparasion # return the auc value and 10 folders values
 
     def get_value(self, nodes):

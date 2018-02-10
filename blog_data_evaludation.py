@@ -45,6 +45,9 @@ embedding_size = 128
 X = np.empty((len(nodes_mapping), embedding_size))
 count = 0
 un_seen_node = 0
+
+
+
 for node in nodes_mapping:
     try:
         vec_one = model[str(node)]
