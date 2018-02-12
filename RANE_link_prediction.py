@@ -288,7 +288,8 @@ def get_auc(G, graph_type, edges_select_connected, edges_select_not_connected, f
 
         path_model = os.path.join(pathModel, timestr + "model_50_tag_2_bin_ppi_50")
         print "##########"
-        print path_model
+
+    print "the path of model: %s  " % path_2vec_model
 
     sequence_data_tag = None
     path_1 = None
@@ -348,7 +349,7 @@ if __name__ == '__main__':
         edges_get_path = os.path.join(path_file,timestr +  "edges_50_arxiv_3.json")
         no_edges_get_path = os.path.join(path_file, timestr + "nodes_50_arxiv_3.json")
         graph_get_path = os.path.join(path_file, timestr + "graph_50_arxiv_3.json")
-        path_2vec_model = "/Users/weizhili/Documents/JD_ads/graph_embedding/graph_embedding_link_prediction/update_code_01_07/model_2_arxiv_node2vec_2.txt"
+        #path_2vec_model = "/Users/weizhili/Documents/JD_ads/graph_embedding/graph_embedding_link_prediction/update_code_01_07/model_2_arxiv_node2vec_2.txt"
 
     elif data_set =="PPI":
         data_path = path_file + '/data/Homo_sapiens.mat'        # POS.mat
@@ -364,7 +365,7 @@ if __name__ == '__main__':
         no_edges_get_path = os.path.join(path_file, timestr + "nodes_50_ppi_3.json")
         graph_get_path = os.path.join(path_file, timestr + "graph_50_ppi_3.json")
 
-        path_2vec_model = "/Users/weizhili/Documents/JD_ads/graph_embedding/graph_embedding_link_prediction/Node2Vec/model_2_ppi_5.txt"
+        #path_2vec_model = "/Users/weizhili/Documents/JD_ads/graph_embedding/graph_embedding_link_prediction/Node2Vec/model_2_ppi_5.txt"
 
     elif data_set == "Arxiv":
         data_path = path_file + '/data/ca-AstroPh.txt'       # POS.mat
@@ -382,7 +383,7 @@ if __name__ == '__main__':
         edges_get_path = os.path.join(path_file,timestr +  "edges_50_arxiv_3.json")
         no_edges_get_path = os.path.join(path_file, timestr + "nodes_50_arxiv_3.json")
         graph_get_path = os.path.join(path_file, timestr + "graph_50_arxiv_3.json")
-        path_2vec_model = "/Users/weizhili/Documents/JD_ads/graph_embedding/graph_embedding_link_prediction/update_code_01_07/model_2_arxiv_node2vec_2.txt"
+        #path_2vec_model = "/Users/weizhili/Documents/JD_ads/graph_embedding/graph_embedding_link_prediction/update_code_01_07/model_2_arxiv_node2vec_2.txt"
 
     else:
         print "no data to run"
@@ -455,6 +456,5 @@ if __name__ == '__main__':
     auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", edges_select_connected, edges_select_not_connected,  feature_vector_similarity, first_order_infor, second_order_infor)
     print "the dataset is: %s" % data_set
 
-    print "the path of model: %s  " % path_2vec_model
     print "the auc value is: "
     print auc_value

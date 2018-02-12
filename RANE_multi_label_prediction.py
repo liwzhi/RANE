@@ -291,7 +291,7 @@ def get_auc(G, graph_type, labels, featur_vector_similarity, binning_nodes, seco
         timestr = time.strftime("%Y%m%d-%H%M%S")
         path_model = os.path.join(pathModel, timestr + "blogwith_second_order_feature_vector")
         print "#############"
-        print path_model
+    print "the path of model: %s  " % path_2vec_model
 
         # path_model = os.path.join(pathModel, "methnode_Model_no_feature_vector.txt")
     sequence_data_tag = None
@@ -328,7 +328,7 @@ if __name__ == '__main__':
 
     blog_data = False
     data_set = "BLOG"
-    path_2vec_model  = None # if the feature vector exists
+    path_2vec_model = None # if the feature vector exists
     print "the dataset is: %s" % data_set
 
 
@@ -343,8 +343,7 @@ if __name__ == '__main__':
         G=nx.from_numpy_matrix(network, create_using=nx.MultiDiGraph())
         for edge in G.edges():
             G[edge[0]][edge[1]][0]['weight'] = 1
-        path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/node2vec_ppi_model__02_07_2018.txt"
-
+        # path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/node2vec_ppi_model__02_07_2018.txt"
 
     elif data_set =="POS":
         data_path = path_file + '/data/POS.mat'
@@ -357,7 +356,7 @@ if __name__ == '__main__':
         G=nx.from_numpy_matrix(network, create_using=nx.MultiDiGraph())
         for edge in G.edges():
             G[edge[0]][edge[1]][0]['weight'] = 1
-        path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/node2vec_pos_model__02_07_2018.txt"
+        # path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/node2vec_pos_model__02_07_2018.txt"
 
     elif data_set == "BLOG":
         blog_data = True
@@ -376,7 +375,7 @@ if __name__ == '__main__':
         G =nx.relabel_nodes(G, nodes_map)
         for edge in G.edges():
             G[edge[0]][edge[1]]['weight'] = 1
-        path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/model__02_07_2018_blogs_2.txt"  #"metahnodes2vec_02_08_blog_data.txt"  #model__02_07_2018_blogs_2.txt"  # methnodes_model_02_10_2018_blog_data.txt
+        # path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/model__02_07_2018_blogs_2.txt"  #"metahnodes2vec_02_08_blog_data.txt"  #model__02_07_2018_blogs_2.txt"  # methnodes_model_02_10_2018_blog_data.txt
 
     else:
         print "no data to run"
@@ -406,5 +405,4 @@ if __name__ == '__main__':
     print "model evaludation"
     auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, feature_vector_similarity, first_order_infor, second_order_infor)
     print "the dataset is: %s" % data_set
-    print "the path of model: %s  " % path_2vec_model
 
