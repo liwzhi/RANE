@@ -1,5 +1,5 @@
 # metanode2vec
-For the paper submission, KDD, 2018: Learning Network Embedding with Implicit Relations
+For the paper submission, KDD, 2018: Relation-Aware Representation Learning in Information Networks
 
 Environment: python 2.7
 

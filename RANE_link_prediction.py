@@ -329,7 +329,7 @@ if __name__ == '__main__':
     path_file = os.getcwd()
 
     blog_data = False
-    data_set = "Arxiv"
+    data_set = "PPI"
     path_2vec_model  = None # if the feature vector exists
     print "the dataset is: %s" % data_set
 
