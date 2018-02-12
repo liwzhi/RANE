@@ -4,10 +4,9 @@ For the paper submission, KDD, 2018: Learning Network Embedding with Implicit Re
 Environment: python 2.7
 
 Package needed:
-gensim, 3.2.0
-Scikit-learn
-
-networkx
+gensim==3.2.0,
+Scikit-learn,
+networkx,
 pandas
 
 Three tasks:
