@@ -1,4 +1,4 @@
-# metanode2vec
+# RANE
 For the paper submission, KDD, 2018: Relation-Aware Representation Learning in Information Networks
 
 Environment: python 2.7
