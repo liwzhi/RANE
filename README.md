@@ -1,18 +1,34 @@
 # metanode2vec
 For the paper submission, KDD, 2018: Learning Network Embedding with Implicit Relations
 
+Environment: python 2.7
+
 Package needed:
 gensim, 3.2.0
 Scikit-learn
+
 networkx
 pandas
 
-(1). Run the metanode2vec.py directly. It will run the multi-labels prediction tasks. 
-generate the embedding file Name is: methnodes_model_02_09_2018_update_2.txt, lINE 268.
+Three tasks:
 
-Change it when train a new model. 
+(1). Link prediction:
 
-(2). For link prediction, and nodes, removing the 50% links and run metanode2vec.py 
+run "RANE_multi_label_prediction.py" directly. Change the dataset through the data_set
 
-(3). For the nodes clustering, run metanode2vec.py to get the model, then run the Calinski_Harabaz_score.py. 
+There are three data-sets in submission: Facebook, Arxiv, PPI.
 
+
+(2). multi-labels classification:
+
+run "RANE_multi_label_prediction.py" directly. Change the dataset through the data_set
+
+There are three data-sets in submission: PPI, wiki pos, Blog.
+
+Because the node label (index) of Blog is not sequence, using the "blog_data_evaluation.py" to do the evaluation.
+
+(3). nodes clustering
+
+After getting the model, using "RANE_Calinski_Harabaz_score.py" to get the Calinski Harabaz score and TSNE data visualization
+
+If you have any questions, please contact me with email: weizhili2014@gmail.com
