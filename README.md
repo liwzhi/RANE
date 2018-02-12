@@ -13,18 +13,18 @@ Three tasks:
 
 (1). Link prediction:
 
-run "RANE_multi_label_prediction.py" directly. Change the dataset through the data_set
+run "RANE_multi_label_prediction.py" directly. Change the dataset name to run different data_set
 
 There are three data-sets in submission: Facebook, Arxiv, PPI.
 
 
 (2). multi-labels classification:
 
-run "RANE_multi_label_prediction.py" directly. Change the dataset through the data_set
+run "RANE_multi_label_prediction.py" directly. Change the dataset name to run different data_set
 
 There are three data-sets in submission: PPI, wiki pos, Blog.
 
-Because the node label (index) of Blog is not sequence, using the "blog_data_evaluation.py" to do the evaluation.
+Because the node label (index) of Blog is not in sequence, using the "blog_data_evaluation.py" to do the evaluation.
 
 (3). nodes clustering
 
