@@ -159,10 +159,8 @@ class Graph_type():
             else:
                 node2vec_similarity = 0.0
 
-            self.similarity_nodes = 1.0000 - (float(common_elements)/combine_elements + second_order_similarity + node2vec_similarity)/3.0
-
-            prob_tranform = 1.0000 - self.similarity_nodes # 1.0001 - jaccard_similarity_score(root_bin_infor, node_bin_infor)
-
+            self.similarity_nodes = (float(common_elements)/combine_elements + second_order_similarity + node2vec_similarity)/3.0
+            prob_tranform = 1.0000 - self.similarity_nodes
             if dst_nbr == src:
                 unnormalized_probs.append(prob_tranform)
             elif G.has_edge(dst_nbr, src):
@@ -301,10 +299,7 @@ def get_auc(G, graph_type, edges_select_connected, edges_select_not_connected, f
 
     print "do the model training"
     obj_model = mode_evaludatoin(model, G)
-
     auc_value, cross_vaidation_values = obj_model.auc_model(edges_select_connected, edges_select_not_connected)
-    # print auc_value
-    # print cross_vaidation_values
     return auc_value, cross_vaidation_values
 
 
@@ -350,7 +345,6 @@ if __name__ == '__main__':
         no_edges_get_path = os.path.join(path_file, timestr + "nodes_50_arxiv_3.json")
         graph_get_path = os.path.join(path_file, timestr + "graph_50_arxiv_3.json")
         #path_2vec_model = "/Users/weizhili/Documents/JD_ads/graph_embedding/graph_embedding_link_prediction/update_code_01_07/model_2_arxiv_node2vec_2.txt"
-
     elif data_set =="PPI":
         data_path = path_file + '/data/Homo_sapiens.mat'        # POS.mat
         # Homo_sapiens.mat
