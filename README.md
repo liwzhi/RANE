@@ -1,33 +1,26 @@
 # RANE
-For the paper submission, KDD, 2018: Relation-Aware Representation Learning in Information Networks
 
-Environment: python 2.7
+**RANE**: Relation-Aware Representation Learning in Information Networks
 
-Package needed:
-gensim==3.2.0,
-Scikit-learn,
-networkx,
-pandas
+RANE is a representation learning approach that simultaneously learns multiple explicit as well as implicit relations.  Paper regarding with model details is currently under submission.  Please send us a request for the article access if interested.  We encourage non-commercial usage for research purpose. 
 
-Three tasks:
+**Environment**: python 2.7
+**Prerequisites**: gensim==3.2.0, Scikit-learn, networkx, pandas
 
-(1). Link prediction:
+**Basic Usage**
 
-run "RANE_multi_label_prediction.py" directly. Change the dataset name to run different data_set
+(1) **link prediction**
+- *run* "RANE_multi_label_prediction.py" and adjust the data name to evaluate corresponding sub-task.
 
-There are three data-sets in submission: Facebook, Arxiv, PPI.
+(2) **multi-label classification**
+- *run* "RANE_multi_label_prediction.py" and adjust the data name to evaluate corresponding sub-task
+- for Blog data, using the "blog_data_evaluation.py" to do the evaluation.
 
+(3) **node clustering**
+- *train* RANE model on corresponding data
+- *run* RANE_Calinski_Harabaz_score.py to get Calinski-Harabaz score and t-SNE visualizations
 
-(2). multi-labels classification:
+**Data**
+As mentioned in paper, we currently maintain three five data-sets for model evaluation: Facebook, Arxiv, PPI, Wiki POS, Blog.
 
-run "RANE_multi_label_prediction.py" directly. Change the dataset name to run different data_set
-
-There are three data-sets in submission: PPI, wiki pos, Blog.
-
-Because the node label (index) of Blog is not in sequence, using the "blog_data_evaluation.py" to do the evaluation.
-
-(3). nodes clustering
-
-After getting the model, using "RANE_Calinski_Harabaz_score.py" to get the Calinski Harabaz score and TSNE data visualization
-
-If you have any questions, please contact me with email: weizhili2014@gmail.com
+If further any questions or suggestions, you are welcome to send email via: weizhili2014@gmail.com
