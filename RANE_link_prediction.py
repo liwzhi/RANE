@@ -324,7 +324,7 @@ if __name__ == '__main__':
     path_file = os.getcwd()
 
     blog_data = False
-    data_set = "PPI"
+    data_set = "Arxiv"
     path_2vec_model  = None # if the feature vector exists
     print "the dataset is: %s" % data_set
 
@@ -449,6 +449,5 @@ if __name__ == '__main__':
     # do the embedding
     auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", edges_select_connected, edges_select_not_connected,  feature_vector_similarity, first_order_infor, second_order_infor)
     print "the dataset is: %s" % data_set
-
     print "the auc value is: "
     print auc_value

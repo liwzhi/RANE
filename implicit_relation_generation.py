@@ -32,7 +32,7 @@ class relation_generation():
             for neighbor in neighbors_nodes:
                 neighbor_seond_order = list(G.neighbors(neighbor))
 
-                common_elements = len([item for item in neighbors_nodes if item not in neighbor_seond_order])#len(root_bin_infor - (root_bin_infor - node_bin_infor))                print list(neighbor_seond_order)
+                common_elements = len([item for item in neighbors_nodes if item in neighbor_seond_order])#len(root_bin_infor - (root_bin_infor - node_bin_infor))                print list(neighbor_seond_order)
                 combine_elements = len(set( neighbors_nodes + neighbor_seond_order ))#float(len(root_bin_infor | node_bin_infor))
                 prob_tranform = float(common_elements)/combine_elements #1.0000 - jaccard_similarity_score
                 key1 = (node, neighbor)
