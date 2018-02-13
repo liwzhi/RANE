@@ -278,13 +278,13 @@ def learn_embeddings(walks, path_1):
     return model
 
 
-def get_auc(G, graph_type, edges_select_connected, edges_select_not_connected, featur_vector_similarity, binning_nodes, second_order_get = None):
+def get_auc(G, graph_type, edges_select_connected, edges_select_not_connected, dataset_name, featur_vector_similarity, binning_nodes, second_order_get = None):
     pathModel = os.getcwd()  #
 
     if graph_type== "nodeTag2Vec":
         G_graph_tag = Graph_type(G, False, 1, 1, featur_vector_similarity, binning_nodes, second_order_get)
 
-        path_model = os.path.join(pathModel, timestr + "model_50_tag_2_bin_ppi_50")
+        path_model = os.path.join(pathModel, timestr + dataset_name +"_model_50_tag_2_bin_ppi_50")
         print "##########"
 
     print "the path of model: %s  " % path_2vec_model
@@ -324,7 +324,7 @@ if __name__ == '__main__':
     path_file = os.getcwd()
 
     blog_data = False
-    data_set = "Arxiv"
+    data_set = "PPI"
     path_2vec_model  = None # if the feature vector exists
     print "the dataset is: %s" % data_set
 
@@ -445,9 +445,8 @@ if __name__ == '__main__':
         feature_vector_similarity = {}
 
     second_order_infor = relation_generation_obj.second_order()
-
     # do the embedding
-    auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", edges_select_connected, edges_select_not_connected,  feature_vector_similarity, first_order_infor, second_order_infor)
+    auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", edges_select_connected, edges_select_not_connected, data_set, feature_vector_similarity, first_order_infor, second_order_infor)
     print "the dataset is: %s" % data_set
     print "the auc value is: "
     print auc_value

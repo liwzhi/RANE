@@ -34,7 +34,6 @@ def plot_data(data_path, index, save_path, filenames_get, embedding_size):
     X = npx.empty((length, 128))
     count = 0
     un_seen_node = 0
-    #print words
     for node in words:
         try:
             vec_one = model[node]
@@ -68,11 +67,8 @@ for file_path_1 in filenames:
     X, y_pred, X_embedded = plot_data(data_path, 0, save_path, file_path_1, embedding_size)
     from sklearn import metrics
     print file_path_1
-
     score_get =  metrics.calinski_harabaz_score(X, y_pred)
     result_meta_nodes.append([file_path_1[1],score_get])
-
-
 
 # for the data visualization
 

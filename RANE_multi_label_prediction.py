@@ -282,14 +282,14 @@ def learn_embeddings(walks, path_1):
         model.save(path_1)
     return model
 
-def get_auc(G, graph_type, labels, featur_vector_similarity, binning_nodes, second_order_get = None):
+def get_auc(G, graph_type, labels, data_name, featur_vector_similarity, binning_nodes, second_order_get = None):
     pathModel = os.getcwd()  #
     if graph_type== "nodeTag2Vec":
         G_graph_tag = Graph_type(G, False, 1, 1, featur_vector_similarity, binning_nodes, second_order_get)
 
         import time
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        path_model = os.path.join(pathModel, timestr + "blogwith_second_order_feature_vector")
+        path_model = os.path.join(pathModel, timestr + data_name +"_second_order_feature_vector.txt")
         print "#############"
     print "the path of model: %s  " % path_2vec_model
 
@@ -403,6 +403,6 @@ if __name__ == '__main__':
     second_order_infor = relation_generation_obj.second_order()
 
     print "model evaludation"
-    auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, feature_vector_similarity, first_order_infor, second_order_infor)
+    auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, data_set, feature_vector_similarity, first_order_infor, second_order_infor)
     print "the dataset is: %s" % data_set
 
