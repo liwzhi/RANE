@@ -1,7 +1,6 @@
 # RANE
 
 **RANE**: Relation-Aware Representation Learning in Information Networks
-
 RANE is a representation learning approach that simultaneously learns multiple explicit as well as implicit relations.  Paper regarding with model details is currently under submission.  Please send us the request for detailed model explanation access. 
 
 **Environment**: python 2.7
@@ -9,17 +8,14 @@ RANE is a representation learning approach that simultaneously learns multiple e
 
 **Basic Usage**
 
-(1). **link prediction**
+(1) **link prediction**
 - *run* "RANE_multi_label_prediction.py" and adjust the data name to evaluate corresponding sub-task.
-
-(2). **multi-label classification**
+(2) **multi-label classification**
 - *run* "RANE_multi_label_prediction.py" and adjust the data name to evaluate corresponding sub-task
 - for Blog data, using the "blog_data_evaluation.py" to do the evaluation.
-
-(3). **node clustering**
+(3) **node clustering**
 - *train* RANE model on corresponding data
 - *run* RANE_Calinski_Harabaz_score.py to get Calinski-Harabaz score and t-SNE visualizations
-
 
 **Data**
 As mentioned in paper, we currently maintain three five data-sets for model evaluation: Facebook, Arxiv, PPI, Wiki POS, Blog.
