@@ -1,7 +1,8 @@
 # RANE
 
 **RANE**: Relation-Aware Representation Learning in Information Networks
-RANE is a representation learning approach that simultaneously learns multiple explicit as well as implicit relations.  Paper regarding with model details is currently under submission.  Please send us the request for detailed model explanation access. 
+
+RANE is a representation learning approach that simultaneously learns multiple explicit as well as implicit relations.  Paper regarding with model details is currently under submission.  Please send us a request for the article access if interested.  We encourage non-commercial usage for research purpose. 
 
 **Environment**: python 2.7
 **Prerequisites**: gensim==3.2.0, Scikit-learn, networkx, pandas
