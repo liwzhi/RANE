@@ -53,7 +53,7 @@ class mode_evaludatoin():
         print "the unseen nodes %d" %un_seen_node
         list_mico = []
         list_maco = []
-        items = [p/10.0 for p in range(1, 10)]
+        items = list(reversed([p/10.0 for p in range(1, 10)])) #list(reversed(list1))
         print "the labels"
         print labels
         print "the x is"

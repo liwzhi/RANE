@@ -14,8 +14,12 @@ import numpy as np
 import networkx as nx
 from scipy.sparse import csc_matrix
 import pandas as pd
+from LINE_embedding import *
+
 import time
+
 timestr = time.strftime("%Y%m%d-%H%M%S")
+
 
 embedding_size = 128
 class Graph_type():
@@ -327,7 +331,7 @@ if __name__ == '__main__':
     path_file = os.getcwd()
 
     blog_data = False
-    data_set = "BLOG"
+    data_set = "POS"
     path_2vec_model = None # if the feature vector exists
     print "the dataset is: %s" % data_set
 
@@ -339,8 +343,8 @@ if __name__ == '__main__':
         labels = mat_contents["group"].todense()
         print labels
         network = mat_contents["network"].todense()
-
         G=nx.from_numpy_matrix(network, create_using=nx.MultiDiGraph())
+
         for edge in G.edges():
             G[edge[0]][edge[1]][0]['weight'] = 1
         # path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/node2vec_ppi_model__02_07_2018.txt"
@@ -365,6 +369,7 @@ if __name__ == '__main__':
         filenames = [x for x in os.listdir(data_path) if x.endswith('.csv') and os.path.getsize(x) > 0]
         labels = pd.read_csv(data_path + filenames[1], names = ["nodes", "label"]) #df.replace({"col1": di})
         G = nx.read_edgelist(data_path + filenames[0], delimiter=",", data=[("weight", int)])
+
         nodes_map = {}
         count = 0
         for item in list(G.nodes()):
@@ -377,6 +382,29 @@ if __name__ == '__main__':
             G[edge[0]][edge[1]]['weight'] = 1
         # path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/model__02_07_2018_blogs_2.txt"  #"metahnodes2vec_02_08_blog_data.txt"  #model__02_07_2018_blogs_2.txt"  # methnodes_model_02_10_2018_blog_data.txt
 
+
+        labels_data_get = labels.drop_duplicates(subset =["nodes"],keep="first")
+        labels_data = labels_data_get.drop_duplicates(subset =["nodes"],keep="first")
+        new_label = pd.DataFrame()
+        new_label["nodes"] = labels_data.nodes.map(nodes_map)
+        new_label["label"] = labels_data["label"]
+        labels = new_label.sort_values(['nodes'], ascending= True)
+
+        from sklearn import preprocessing
+        from sklearn.preprocessing import MultiLabelBinarizer
+
+        lb = preprocessing.LabelBinarizer()
+        labels_get = list(labels.label)
+
+        labels_get =[[x] for x in labels_get]
+        labels = MultiLabelBinarizer().fit_transform(labels_get)
+
+
+
+        print "the labels is"
+        print labels_data
+        print labels_data.shape
+
     else:
         print "no data to run"
         pass
@@ -386,23 +414,42 @@ if __name__ == '__main__':
     print G.number_of_nodes()
     # number of self-nodes
     print G.selfloop_edges()
+    print G.nodes()
 
+    algorithm_type = "RANE"
+    if algorithm_type =="RANE":
+        # do the feature blogs
+        relation_generation_obj = relation_generation(G, path_2vec_model)
+        first_order_infor = relation_generation_obj.first_order()
 
-    relation_generation_obj = relation_generation(G, path_2vec_model)
-    first_order_infor = relation_generation_obj.first_order()
+        if path_2vec_model:
+            if not blog_data:
+                feature_vector_similarity = relation_generation_obj.feature_combine()
+            if blog_data:
+                print "similarithy"
+                feature_vector_similarity = relation_generation_obj.feature_combine_blog()
+        else:
+            feature_vector_similarity = {}
 
-    if path_2vec_model:
-        if not blog_data:
-            feature_vector_similarity = relation_generation_obj.feature_combine()
-        if blog_data:
-            print "similarithy"
-            feature_vector_similarity = relation_generation_obj.feature_combine_blog()
+        second_order_infor = relation_generation_obj.second_order()
+        #second_order_infor = {}
+
+        print "model evaludation"
+        auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, data_set, feature_vector_similarity, first_order_infor, second_order_infor)
+    elif algorithm_type =="LINE":
+        LINE_model = run_model()
+        edges_select_connected = []
+        edges_select_not_connected = []
+        task = "multi_label_prediction"
+        auc_value, cross_vaidation_values, embedding_path = LINE_model.run_LINE(G, "first-order", edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
+
+        print "first order the model path is %s" % embedding_path
+        auc_value, cross_vaidation_values, embedding_path = LINE_model.run_LINE(G, "second-order", edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
+
+        print "second order the model path is %s" % embedding_path
+
+        print "the dataset is: %s" % data_set
     else:
-        feature_vector_similarity = {}
+        print "no this algorithm %" %algorithm_type
 
-    second_order_infor = relation_generation_obj.second_order()
-
-    print "model evaludation"
-    auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, data_set, feature_vector_similarity, first_order_infor, second_order_infor)
-    print "the dataset is: %s" % data_set
 

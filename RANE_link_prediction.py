@@ -15,6 +15,8 @@ import networkx as nx
 from scipy.sparse import csc_matrix
 import pandas as pd
 import time
+from LINE_embedding import *
+
 timestr = time.strftime("%Y%m%d-%H%M%S")
 
 embedding_size = 128
@@ -423,30 +425,50 @@ if __name__ == '__main__':
             edges_select_not_connected = json.loads(f.read())
 
         G = load_pickle(graph_get_path)
+    algorithm_type = "RANE"
+    if algorithm_type=="RANE":
+        blog_data = False
+        # read the multiplables
+        print nx.info(G)
+        # count the number of nodes
+        print G.number_of_nodes()
+        # number of self-nodes
+        print G.selfloop_edges()
 
-    blog_data = False
-    # read the multiplables
-    print nx.info(G)
-    # count the number of nodes
-    print G.number_of_nodes()
-    # number of self-nodes
-    print G.selfloop_edges()
+        relation_generation_obj = relation_generation(G, path_2vec_model)
+        first_order_infor = relation_generation_obj.first_order()
 
-    relation_generation_obj = relation_generation(G, path_2vec_model)
-    first_order_infor = relation_generation_obj.first_order()
+        if path_2vec_model:
+            if not blog_data:
+                feature_vector_similarity = relation_generation_obj.feature_combine()
+            if blog_data:
+                print "similarithy"
+                feature_vector_similarity = relation_generation_obj.feature_combine_blog()
+        else:
+            feature_vector_similarity = {}
 
-    if path_2vec_model:
-        if not blog_data:
-            feature_vector_similarity = relation_generation_obj.feature_combine()
-        if blog_data:
-            print "similarithy"
-            feature_vector_similarity = relation_generation_obj.feature_combine_blog()
+        second_order_infor = relation_generation_obj.second_order()
+        # do the embedding
+        auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", edges_select_connected, edges_select_not_connected, data_set, feature_vector_similarity, first_order_infor, second_order_infor)
+        print "the auc value is: "
+        print auc_value
+    elif algorithm_type=="LINE":
+        LINE_model = run_model()
+        labels = None
+        task = None
+        auc_value_first = LINE_model.run_LINE(G, "first-order", edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
+        print "the first order AUC is"
+        print auc_value_first
+        #
+        # print "run the secon order line is "
+        auc_value_second = LINE_model.run_LINE(G, "second-order", edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
+        print "the second order AUC is"
+        print auc_value_second
+        print "the dataset is: %s" % data_set
     else:
-        feature_vector_similarity = {}
+        print "no this algorithm"
 
-    second_order_infor = relation_generation_obj.second_order()
-    # do the embedding
-    auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", edges_select_connected, edges_select_not_connected, data_set, feature_vector_similarity, first_order_infor, second_order_infor)
-    print "the dataset is: %s" % data_set
-    print "the auc value is: "
-    print auc_value
+
+
+
+

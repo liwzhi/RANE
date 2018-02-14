@@ -44,7 +44,7 @@ def plot_data(data_path, index, save_path, filenames_get, embedding_size):
         #print vec_one.shape
         X[count, :] = vec_one
         count +=1
-    y_pred = KMeans(n_clusters= 6, random_state= 2017, max_iter = 3000).fit_predict(X)
+    y_pred = KMeans(n_clusters= 6, random_state= 2017, max_iter = 15).fit_predict(X)
     X_embedded = None
     #kmeans.labels_
     #     print "do the TSNE"
@@ -71,7 +71,27 @@ for file_path_1 in filenames:
     result_meta_nodes.append([file_path_1[1],score_get])
 
 # for the data visualization
+# goodvalues = [3, 2, 5]
+#
+#
+# ix = np.isin(y_pred, goodvalues)
+#
+# index =  np.where(ix)
 
+# plt.scatter(X_embedded[:, 0][index[0]], X_embedded[:, 1][index[0]], c=y_pred[index[0]])
+# axes = plt.gca()
+# axes.set_xlim([-120,110])
+# axes.set_ylim([-120,110])
+# # axes.set_xlim([-100,100])
+# # axes.set_ylim([-100,100])
+#
+# plt.legend()
+# plt.savefig('deepWalk_pos.png', dpi = 100)
+# plt.show()
+
+
+
+# for another data visulization
 # plt.plot( key_get, metanode2vec_value, 'go-', label='metanode2vec', linewidth=2)
 # plt.plot( key_get, node2vec_value, 'ro-', label='node2vec', linewidth=2)
 # plt.xticks(key_get)
