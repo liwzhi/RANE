@@ -23,5 +23,5 @@ RANE is a representation learning approach that simultaneously learns multiple e
 **Data**
 As mentioned in paper, we currently maintain three five data-sets for model evaluation: Facebook, Arxiv, PPI, Wiki POS, Blog.
 
-Change the algorithm type, can be RANE or LINE algorithm. 
+Change the algorithm type, can be RANE or LINE algorithm.
 If further any questions or suggestions, you are welcome to send email via: weizhili2014@gmail.com

@@ -163,23 +163,10 @@ class data_obj:
         self.learning_rate = 0.025
 
         self.mode = 'train'
-        self.num_batches = 3000
+        self.num_batches = 1000
         self.total_graph = True
 
 class run_model():
-
-    # def get_value(self, nodes, normalized_embedding, label = 0):
-    #     X = np.empty([len(nodes), 128*2])
-    #     for index in range(len(nodes)):
-    #         item = nodes[index]
-    #         index_one = item[0]
-    #         index_two = item[1]
-    #         vec_one = normalized_embedding[index_one]
-    #         vec_two = normalized_embedding[index_two]
-    #         X[index, :] = np.append(vec_one, vec_two, axis=0)
-    #     return X
-    #
-
     def get_value(self, nodes, normalized_embedding, embedding_size = 128):
         X_averge = np.empty([len(nodes), embedding_size])
         X_hadamard = np.empty([len(nodes), embedding_size])
@@ -203,7 +190,7 @@ class run_model():
         X = [X_averge, X_hadamard, X_weighted_L1, X_weighted_L2]
         return X
 
-    def run_LINE(self,  G, proximity, edges_select_connected, edges_select_not_connected, embedding_dim, labels, task):
+    def run_LINE(self,  G, proximity, nodes_mapping,  edges_select_connected, edges_select_not_connected, embedding_dim, labels, task):
         args = data_obj(proximity, embedding_dim)
         data_loader = DBLPDataLoader(G)
 
@@ -259,8 +246,8 @@ class run_model():
         print normalized_embedding.shape
         # get the data
         if task =="multi_label_prediction":
-            list_mico, list_maco =  self.mutli_lables(G, normalized_embedding, labels,\
-                                                      embedding_size = 128, clf = LogisticRegression(C= 1, penalty = "l2", tol=0.01), flag = "supervised")
+            list_mico, list_maco =  self.mutli_lables(G, normalized_embedding, labels, nodes_mapping, \
+                                                      embedding_size = 128, clf = LogisticRegression(), flag = "supervised")
             return list_mico, list_maco, embedding_path
 
         else:
@@ -295,64 +282,92 @@ class run_model():
                 clf.fit(X_train, y_train)
                 y_score = clf.predict_proba(X_test)[:,1]
                 micro_f1 = f1_score(y_test, y_score.round(), average='micro')
-
                 macro_f2 = f1_score(y_test, y_score.round(), average='macro')
                 #
-
                 fpr, tpr, thresholds = metrics.roc_curve(y_test, y_score)
                 roc_auc_value = metrics.auc(fpr, tpr)
 
                 scores = cross_val_score(clf, X_shuffle, y_shuffle, cv=10)
                 roc_comparasion.append(roc_auc_value)
                 accuracy_comparasion.append(np.mean(scores))
-
             return roc_comparasion, accuracy_comparasion, embedding_path # return the auc value and 10 folders values
 
-
-    def mutli_lables(self, G, normalized_embedding, labels, embedding_size = 128, clf = LogisticRegression(C= 1, penalty = "l2", tol=0.01),
+    def mutli_lables(self, G, normalized_embedding, labels, nodes_mapping,  embedding_size = 128, clf = LogisticRegression(),
                      flag = "supervised"):
-
-        list_mico_lg, list_maco_lg = self.model_evaludate(G, normalized_embedding, labels,clf, embedding_size, flag)
+        list_mico_lg, list_maco_lg = self.model_evaludate(G, normalized_embedding, labels, nodes_mapping, clf, embedding_size, flag)
         # list_mico_lg, list_maco_lg = self.model_evaludate(labels,embedding_size, clf, flag )
         return list_mico_lg, list_maco_lg
 
-    def model_evaludate(self, G, normalized_embedding, labels,clf, embedding_size = 128, flag = "supervised"):
-        a =  G.nodes()
-        print "#######"
-        X = np.empty((len(a), embedding_size))
+    def model_evaludate(self, G, normalized_embedding, labels,nodes_mapping ,clf, embedding_size = 128, flag = "supervised"):
+
         count = 0
         un_seen_node = 0
         print normalized_embedding.shape
-        for node in G.nodes():
-            try:
-                vec_one = normalized_embedding[node]
-            except:
-                vec_one = np.random.rand(embedding_size)
-                un_seen_node +=1
 
-            X[node, :] = vec_one
-        print "the unseen nodes %d" %un_seen_node
+        if nodes_mapping:
+            print "the nodes mapping data"
+            X = np.empty((len(nodes_mapping), embedding_size))
+            for node in nodes_mapping:
+                try:
+                    vec_one = normalized_embedding[node]
+                except:
+                    vec_one = np.random.rand(embedding_size)
+                    un_seen_node +=1
+                X[node, :] = vec_one
+            print "the unseen nodes %d" %un_seen_node
+        else:
+            a =  G.nodes()
+            X = np.empty((len(a), embedding_size))
+            for node in G.nodes():
+                try:
+                    vec_one = normalized_embedding[node]
+                except:
+                    vec_one = np.random.rand(embedding_size)
+                    un_seen_node +=1
+                X[node, :] = vec_one
+            print "the unseen nodes %d" %un_seen_node
+
         list_mico = []
         list_maco = []
-        items = list(reversed([p/10.0 for p in range(1, 10)])) #list(reversed(list1))
+        # items = list(reversed([p/10.0 for p in range(1, 10)])) #list(reversed(list1))
+        items = [p/10.0 for p in range(1, 10)]
+
+        pathModel = os.getcwd()  #
+        label_infor = pathModel + "blog_label.pickle"
+        x_data = pathModel + "blog_data.pickle"
+        print "save the data"
+        print label_infor
+        print x_data
+
+        save_picle(label_infor, labels)
+        save_picle(x_data, X)
+
         print "the labels"
         print labels
         print "the x is"
         print X
         print X.shape
+        print labels.shape
+        clf = LogisticRegression(solver ="sag")
         for item in items:
+            print "the item is"
+            print item
             X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size= item, random_state=51)
             if flag == "supervised":
                 y_score = OneVsRestClassifier(clf).fit(X_train, y_train).predict(X_test)
             else:
                 y_score = clf.fit(X_train).predict(X_test)
-            item_preict = []
-            for item in y_score:
-                if item.any():
-                    item_preict.append(item)
+            # item_preict = []
+            # for item_data in y_score:
+            #     if item_data.any():
+            #         item_preict.append(item_data)
             all_zeros = not np.any(y_score)
             micro_f1 = f1_score(y_test, y_score, average='micro')
             macro_f2 = f1_score(y_test, y_score, average='macro')
+
+            print micro_f1
+            print macro_f2
+
             list_mico.append(micro_f1)
             list_maco.append(macro_f2)
         print list_mico

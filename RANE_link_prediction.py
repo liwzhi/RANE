@@ -330,6 +330,9 @@ if __name__ == '__main__':
     path_2vec_model  = None # if the feature vector exists
     print "the dataset is: %s" % data_set
 
+    algorithm_type = "LINE"
+    print "the algorithm type is %s" %algorithm_type
+
     if data_set == "Facebook":
         data_path = path_file + '/data/facebook_combined.txt'        # POS.mat
         G = nx.read_edgelist(data_path, nodetype = int)
@@ -425,7 +428,6 @@ if __name__ == '__main__':
             edges_select_not_connected = json.loads(f.read())
 
         G = load_pickle(graph_get_path)
-    algorithm_type = "RANE"
     if algorithm_type=="RANE":
         blog_data = False
         # read the multiplables
@@ -456,19 +458,18 @@ if __name__ == '__main__':
         LINE_model = run_model()
         labels = None
         task = None
-        auc_value_first = LINE_model.run_LINE(G, "first-order", edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
+        nodes_mapping = None
+
+        auc_value_first = LINE_model.run_LINE(G, "first-order", nodes_mapping,  edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
         print "the first order AUC is"
         print auc_value_first
         #
         # print "run the secon order line is "
-        auc_value_second = LINE_model.run_LINE(G, "second-order", edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
+        auc_value_second = LINE_model.run_LINE(G, "second-order", nodes_mapping, edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
         print "the second order AUC is"
         print auc_value_second
         print "the dataset is: %s" % data_set
     else:
         print "no this algorithm"
-
-
-
 
 

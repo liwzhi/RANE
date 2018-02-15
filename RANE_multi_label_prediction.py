@@ -5,6 +5,8 @@ from sklearn.metrics import jaccard_similarity_score
 from implicit_relation_generation import relation_generation
 from gensim.models import Word2Vec
 from evaludation_model import mode_evaludatoin
+from sklearn.preprocessing import MultiLabelBinarizer
+
 import pickle
 import os
 import json
@@ -95,7 +97,7 @@ class Graph_type():
 
                 similarity_nodes = 1.0000 - (float(common_elements)/combine_elements + second_order_similarity + node2vec_similarity)/3.0
 
-                if similarity_nodes>0.85 or root_bin_infor==node_bin_infor:
+                if similarity_nodes>0.65 or root_bin_infor==node_bin_infor:
                     count += 1
                 else:
                     count = 0
@@ -286,7 +288,7 @@ def learn_embeddings(walks, path_1):
         model.save(path_1)
     return model
 
-def get_auc(G, graph_type, labels, data_name, featur_vector_similarity, binning_nodes, second_order_get = None):
+def get_auc(G, graph_type, labels, data_name, nodes_mapping, featur_vector_similarity, binning_nodes, second_order_get = None):
     pathModel = os.getcwd()  #
     if graph_type== "nodeTag2Vec":
         G_graph_tag = Graph_type(G, False, 1, 1, featur_vector_similarity, binning_nodes, second_order_get)
@@ -306,7 +308,7 @@ def get_auc(G, graph_type, labels, data_name, featur_vector_similarity, binning_
     model = learn_embeddings(sequence_data_tag, path_model)
     print "do the evaludation"
     obj_model = mode_evaludatoin(model, G, embedding_size)
-    scores_get = obj_model.mutli_lables(labels, embedding_size)
+    scores_get = obj_model.mutli_lables(labels, nodes_mapping, embedding_size)
     return scores_get
 
 def load_pickle(data_path):
@@ -331,10 +333,14 @@ if __name__ == '__main__':
     path_file = os.getcwd()
 
     blog_data = False
-    data_set = "POS"
+    data_set = "BLOG"
     path_2vec_model = None # if the feature vector exists
     print "the dataset is: %s" % data_set
 
+    algorithm_type = "LINE"
+    nodes_mapping = None
+
+    print "the algorithm type is %s" %algorithm_type
 
     if data_set == "PPI":
         data_path = path_file + '/data/Homo_sapiens.mat'
@@ -374,7 +380,7 @@ if __name__ == '__main__':
         count = 0
         for item in list(G.nodes()):
             if item not in nodes_map:
-                nodes_map[item] = count
+                nodes_map[int(item)] = count
                 count += 1
 
         G =nx.relabel_nodes(G, nodes_map)
@@ -382,33 +388,43 @@ if __name__ == '__main__':
             G[edge[0]][edge[1]]['weight'] = 1
         # path_2vec_model = "/Users/weizhili/Desktop/data_docker/logs_data/SDNE_embedding/model__02_07_2018_blogs_2.txt"  #"metahnodes2vec_02_08_blog_data.txt"  #model__02_07_2018_blogs_2.txt"  # methnodes_model_02_10_2018_blog_data.txt
 
+        labels = pd.read_csv(data_path + filenames[1], names = ["nodes", "label"]) #df.replace({"col1": di})
+        # labels_data = labels.drop_duplicates(subset =["nodes"],keep="first")
 
-        labels_data_get = labels.drop_duplicates(subset =["nodes"],keep="first")
-        labels_data = labels_data_get.drop_duplicates(subset =["nodes"],keep="first")
-        new_label = pd.DataFrame()
-        new_label["nodes"] = labels_data.nodes.map(nodes_map)
-        new_label["label"] = labels_data["label"]
-        labels = new_label.sort_values(['nodes'], ascending= True)
-
-        from sklearn import preprocessing
-        from sklearn.preprocessing import MultiLabelBinarizer
-
-        lb = preprocessing.LabelBinarizer()
+        nodes_index = list(labels.nodes)
+        nodes_mapping = []
+        for item in nodes_index:
+            nodes_mapping.append(nodes_map[item])
         labels_get = list(labels.label)
-
+        labels_get = list(labels.label)
         labels_get =[[x] for x in labels_get]
         labels = MultiLabelBinarizer().fit_transform(labels_get)
 
-
+        # new_label = pd.DataFrame()
+        # new_label["nodes"] = labels_data.nodes.map(nodes_map)
+        # new_label["label"] = labels_data["label"]
+        # labels = new_label.sort_values(['nodes'], ascending= True)
+        #
+        # from sklearn import preprocessing
+        # from sklearn.preprocessing import MultiLabelBinarizer
+        #
+        # lb = preprocessing.LabelBinarizer()
+        # labels_get = list(labels.label)
+        #
+        # labels_get =[[x] for x in labels_get]
+        # labels = MultiLabelBinarizer().fit_transform(labels_get)
 
         print "the labels is"
-        print labels_data
-        print labels_data.shape
+        print labels
+        print labels.shape
+        print nodes_mapping
 
     else:
         print "no data to run"
         pass
-
+    print "the labels is"
+    print labels
+    print labels.shape
     print nx.info(G)
     # count the number of nodes
     print G.number_of_nodes()
@@ -416,7 +432,8 @@ if __name__ == '__main__':
     print G.selfloop_edges()
     print G.nodes()
 
-    algorithm_type = "RANE"
+    print "the algorithm is %s" % algorithm_type
+
     if algorithm_type =="RANE":
         # do the feature blogs
         relation_generation_obj = relation_generation(G, path_2vec_model)
@@ -430,26 +447,28 @@ if __name__ == '__main__':
                 feature_vector_similarity = relation_generation_obj.feature_combine_blog()
         else:
             feature_vector_similarity = {}
-
-        second_order_infor = relation_generation_obj.second_order()
-        #second_order_infor = {}
-
+        #second_order_infor = relation_generation_obj.second_order()
+        second_order_infor = {}
         print "model evaludation"
-        auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, data_set, feature_vector_similarity, first_order_infor, second_order_infor)
+        auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, data_set, nodes_mapping,  feature_vector_similarity, first_order_infor, second_order_infor)
+
     elif algorithm_type =="LINE":
         LINE_model = run_model()
         edges_select_connected = []
         edges_select_not_connected = []
         task = "multi_label_prediction"
-        auc_value, cross_vaidation_values, embedding_path = LINE_model.run_LINE(G, "first-order", edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
+        auc_value, cross_vaidation_values, embedding_path = LINE_model.run_LINE(G, "first-order",  nodes_mapping,  edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
 
         print "first order the model path is %s" % embedding_path
-        auc_value, cross_vaidation_values, embedding_path = LINE_model.run_LINE(G, "second-order", edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
+        auc_value, cross_vaidation_values, embedding_path = LINE_model.run_LINE(G, "second-order", nodes_mapping, edges_select_connected, edges_select_not_connected, embedding_size, labels, task)
 
         print "second order the model path is %s" % embedding_path
-
         print "the dataset is: %s" % data_set
     else:
         print "no this algorithm %" %algorithm_type
+
+    print "the algorithm type is %s" %algorithm_type
+    print "the dataset is: %s" % data_set
+
 
 

@@ -25,32 +25,50 @@ class mode_evaludatoin():
         return
 
 
-    def mutli_lables(self, labels, embedding_size = 128, clf = LogisticRegression(C= 1, penalty = "l2", tol=0.01),
+    def mutli_lables(self, labels,  nodes_mapping ={}, embedding_size = 128, clf = LogisticRegression(C= 1, penalty = "l2", tol=0.01),
                      flag = "supervised"):
 
-        list_mico_lg, list_maco_lg = self.model_evaludate(labels,clf, embedding_size, flag)
+        list_mico_lg, list_maco_lg = self.model_evaludate(labels,clf, embedding_size, nodes_mapping, flag)
         # list_mico_lg, list_maco_lg = self.model_evaludate(labels,embedding_size, clf, flag )
         return list_mico_lg, list_maco_lg
 
-    def model_evaludate(self, labels,clf, embedding_size = 128, flag = "supervised"):
+    def model_evaludate(self, labels,clf, embedding_size = 128, nodes_mapping = {}, flag = "supervised"):
         G = self.G
         model = self.model
         a =  G.nodes()
         print "#######"
         print a
-        X = np.empty((len(a), embedding_size))
-        count = 0
-        un_seen_node = 0
-        for node in G.nodes():
-            try:
-                vec_one = model[str(node)]
-            except:
-                vec_one = np.random.rand(embedding_size)
-                un_seen_node +=1
+        if nodes_mapping:
+            X = np.empty((len(nodes_mapping), embedding_size))
+            count = 0
+            un_seen_node = 0
 
-            X[count, :] = vec_one
-            count +=1
+            for node in nodes_mapping:
+                try:
+                    vec_one = model[str(node)]
+                except:
+                    vec_one = np.random.rand(embedding_size)
+                    un_seen_node +=1
+
+                X[count, :] = vec_one
+                count +=1
+        else:
+            X = np.empty((len(a), embedding_size))
+            count = 0
+            un_seen_node = 0
+
+            for node in G.nodes():
+                try:
+                    vec_one = model[str(node)]
+                except:
+                    vec_one = np.random.rand(embedding_size)
+                    un_seen_node +=1
+
+                X[count, :] = vec_one
+                count +=1
+
         print "the unseen nodes %d" %un_seen_node
+        print X.shape
         list_mico = []
         list_maco = []
         items = list(reversed([p/10.0 for p in range(1, 10)])) #list(reversed(list1))
