@@ -14,7 +14,6 @@ RANE is a representation learning approach that simultaneously learns multiple e
 
 (2) **multi-label classification**
 - *run* "RANE_multi_label_prediction.py" and adjust the data name to evaluate corresponding sub-task
-- for Blog data, using the "blog_data_evaluation.py" to do the evaluation.
 
 (3) **node clustering**
 - *train* RANE model on corresponding data

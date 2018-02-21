@@ -352,7 +352,7 @@ class run_model():
         for item in items:
             print "the item is"
             print item
-            X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size= item, random_state=51)
+            X_train, X_test, y_train, y_test = train_test_split(X, labels, train_size= item, random_state=51)
             if flag == "supervised":
                 y_score = OneVsRestClassifier(clf).fit(X_train, y_train).predict(X_test)
             else:

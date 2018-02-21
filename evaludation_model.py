@@ -24,7 +24,6 @@ class mode_evaludatoin():
     def clustering_embedding(self, labels, embedding_size):
         return
 
-
     def mutli_lables(self, labels,  nodes_mapping ={}, embedding_size = 128, clf = LogisticRegression(C= 1, penalty = "l2", tol=0.01),
                      flag = "supervised"):
 
@@ -66,18 +65,21 @@ class mode_evaludatoin():
 
                 X[count, :] = vec_one
                 count +=1
-
+        print "#######################3"
         print "the unseen nodes %d" %un_seen_node
+        print un_seen_node
         print X.shape
         list_mico = []
         list_maco = []
-        items = list(reversed([p/10.0 for p in range(1, 10)])) #list(reversed(list1))
+        items = [p/10.0 for p in range(1, 10)] #list(reversed([p/10.0 for p in range(1, 10)])) #list(reversed(list1))
+
         print "the labels"
         print labels
         print "the x is"
         print X
         for item in items:
-            X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size= item, random_state=51)
+            print "the train data percentage is %s" % str(item)
+            X_train, X_test, y_train, y_test = train_test_split(X, labels, train_size= item, random_state=51)
             if flag == "supervised":
                 y_score = OneVsRestClassifier(clf).fit(X_train, y_train).predict(X_test)
             else:

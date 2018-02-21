@@ -97,7 +97,7 @@ class Graph_type():
 
                 similarity_nodes = 1.0000 - (float(common_elements)/combine_elements + second_order_similarity + node2vec_similarity)/3.0
 
-                if similarity_nodes>0.65 or root_bin_infor==node_bin_infor:
+                if similarity_nodes>=0.85 or root_bin_infor==node_bin_infor:
                     count += 1
                 else:
                     count = 0
@@ -295,15 +295,17 @@ def get_auc(G, graph_type, labels, data_name, nodes_mapping, featur_vector_simil
 
         import time
         timestr = time.strftime("%Y%m%d-%H%M%S")
-        path_model = os.path.join(pathModel, timestr + data_name +"_second_order_feature_vector.txt")
+        path_model = os.path.join(pathModel, timestr + data_name + "_no_second_order_feature_vector.txt")
         print "#############"
-    print "the path of model: %s  " % path_2vec_model
+    print "the path of model: %s  " % path_model
 
         # path_model = os.path.join(pathModel, "methnode_Model_no_feature_vector.txt")
     sequence_data_tag = None
     if not exists(path_model):
         G_graph_tag.preprocess_transition_probs()
         sequence_data_tag = G_graph_tag.simulate_walks(10, 80)
+    else:
+        "load the model directly"
 
     model = learn_embeddings(sequence_data_tag, path_model)
     print "do the evaludation"
@@ -337,7 +339,7 @@ if __name__ == '__main__':
     path_2vec_model = None # if the feature vector exists
     print "the dataset is: %s" % data_set
 
-    algorithm_type = "LINE"
+    algorithm_type = "RANE"
     nodes_mapping = None
 
     print "the algorithm type is %s" %algorithm_type
@@ -380,7 +382,7 @@ if __name__ == '__main__':
         count = 0
         for item in list(G.nodes()):
             if item not in nodes_map:
-                nodes_map[int(item)] = count
+                nodes_map[item] = count
                 count += 1
 
         G =nx.relabel_nodes(G, nodes_map)
@@ -394,8 +396,8 @@ if __name__ == '__main__':
         nodes_index = list(labels.nodes)
         nodes_mapping = []
         for item in nodes_index:
-            nodes_mapping.append(nodes_map[item])
-        labels_get = list(labels.label)
+            nodes_mapping.append(nodes_map[str(item)]) # get the original nodes to new nodes
+
         labels_get = list(labels.label)
         labels_get =[[x] for x in labels_get]
         labels = MultiLabelBinarizer().fit_transform(labels_get)
@@ -413,7 +415,6 @@ if __name__ == '__main__':
         #
         # labels_get =[[x] for x in labels_get]
         # labels = MultiLabelBinarizer().fit_transform(labels_get)
-
         print "the labels is"
         print labels
         print labels.shape
@@ -447,8 +448,8 @@ if __name__ == '__main__':
                 feature_vector_similarity = relation_generation_obj.feature_combine_blog()
         else:
             feature_vector_similarity = {}
-        #second_order_infor = relation_generation_obj.second_order()
-        second_order_infor = {}
+        second_order_infor = relation_generation_obj.second_order()
+        #second_order_infor = {}
         print "model evaludation"
         auc_value, cross_vaidation_values = get_auc(G, "nodeTag2Vec", labels, data_set, nodes_mapping,  feature_vector_similarity, first_order_infor, second_order_infor)
 
@@ -469,6 +470,3 @@ if __name__ == '__main__':
 
     print "the algorithm type is %s" %algorithm_type
     print "the dataset is: %s" % data_set
-
-
-
