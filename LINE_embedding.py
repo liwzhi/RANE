@@ -350,18 +350,12 @@ class run_model():
         print labels.shape
         clf = LogisticRegression(solver ="sag")
         for item in items:
-            print "the item is"
-            print item
+            print "the train data percentage is %s" % str(item)
             X_train, X_test, y_train, y_test = train_test_split(X, labels, train_size= item, random_state=51)
             if flag == "supervised":
                 y_score = OneVsRestClassifier(clf).fit(X_train, y_train).predict(X_test)
             else:
                 y_score = clf.fit(X_train).predict(X_test)
-            # item_preict = []
-            # for item_data in y_score:
-            #     if item_data.any():
-            #         item_preict.append(item_data)
-            all_zeros = not np.any(y_score)
             micro_f1 = f1_score(y_test, y_score, average='micro')
             macro_f2 = f1_score(y_test, y_score, average='macro')
 
