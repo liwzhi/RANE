@@ -27,8 +27,10 @@ You can change the algorithm type, now this version code can be RANE or LINE alg
 
 For the implement of other comparison algorithms are below:
 
-**SDNE: https://github.com/suanrong/SDNE**
-**Node2vec: https://github.com/aditya-grover/node2vec**
-**DeepWalk: Set p =1 and q =1 by using node2vec code**
+SDNE: https://github.com/suanrong/SDNE
+
+Node2vec: https://github.com/aditya-grover/node2vec
+
+DeepWalk: Set p =1 and q =1 by using node2vec code
 
 If further any questions or suggestions, you are welcome to send email via: weizhili2014@gmail.com
